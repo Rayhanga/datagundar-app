@@ -15,7 +15,12 @@
     "tailwindcss": "^1.8.10"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "build:tailwind": "tailwindcss build src/tailwind.css -o src/tailwind.output.css",
+    "start:restapi": ". venv/bin/activate && uvicorn datagundar.app:app",
+    "start:reactjs": "react-scripts start",
+    "prestart": "npm run build:tailwind",
+    "prebuild": "npm run build:tailwind",
+    "start": "npm run start:reactjs & npm run start:restapi",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -34,5 +39,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "proxy": "http://localhost:8000"
 }
