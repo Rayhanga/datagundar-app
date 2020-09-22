@@ -43,6 +43,11 @@ const sapListAtom = atom({
   default: []
 })
 
+const staffListAtom = atom({
+  key: 'staffListState',
+  default: []
+})
+
 function App() {
   const user = useRecoilValue(userAtom)
   return (
@@ -195,6 +200,7 @@ function Dashboard(){
       <div className="grid gap-8 rounded-lg bg-gray-300 p-5 mt-8 min-h-screen">
         <JadwalContainer user={user}/>
         <SapContainer user={user}/>
+        <StaffContainer/>
       </div>
     </main>
   )
@@ -292,6 +298,47 @@ function SapContainer({user}) {
   )
 }
 
+function StaffContainer() {
+  const [staffList, setStaffList] = useRecoilState(staffListAtom)
+  const [loading, setLoading] = React.useState(false)
+
+  const getStaffData = () => {
+    setLoading(true)
+    fetch(`http://localhost:8000/api/staff/`)
+    .then(res => res.json())
+    .then(data => {
+      setStaffList(data)
+      setLoading(false)
+    })
+    .catch(err => console.error(err))
+  }
+
+  React.useEffect(() => {
+    getStaffData()
+  }, [])
+
+  return(
+    <div>
+      <div className="grid grid-flow-col">
+        <div>
+          <span className="uppercase font-semibold mr-2">Daftar Staff / Dosen</span>
+          <span className="font-semibold text-gray-500">({staffList.length})</span>
+        </div>
+        <svg className="w-4 md:w-8 place-self-end cursor-pointer" onClick={getStaffData} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+      </div>
+      {loading
+        ?<h1 className="md:text-center">Mengambil Data Dari Server...</h1>
+        :<div className="grid gap-4 grid-cols-2 md:grid-cols-3 mt-3">
+          {staffList.map(staff => (
+            <StaffItem key={staff.staffEmail} staff={staff}/>
+          ))}
+          </div>}
+    </div>
+  )
+}
+
 function JadwalItem({jadwal}) {
   return(
     <div className="grid grid-flow-col content-center rounded-lg bg-gray-400 md:w-6/12 md:mx-auto">
@@ -299,7 +346,7 @@ function JadwalItem({jadwal}) {
         <span className="ml-1 font-medium text-base md:text-center md:text-xl">{jadwal.jadwalMatkul}</span>
         <p className="ml-1 font-medium text-sm md:text-center md:text-lg">{jadwal.jadwalWaktu}</p>
         <p className="ml-4 text-xs md:text-center md:text-base">{jadwal.jadwalRuang}</p>
-        <p className="ml-4 text-xs md:text-center md:text-base">{jadwal.jadwalDosen}</p>
+        <p className="ml-4 text-xs md:text-center md:text-base">{jadwal.jadwalstaff}</p>
       </div>
     </div>
   )
@@ -316,9 +363,21 @@ function SapItem({sap}) {
   )
 }
 
+function StaffItem({staff}) {
+  return(
+    <div className="grid grid-flow-col content-center rounded-lg bg-gray-400 md:w-6/12 md:mx-auto">
+      <div className="flex flex-col border-l-2 border-black p-1 m-1 md:border-none">
+        <span className="ml-1 font-medium text-base md:text-center md:text-xl">{staff.staffName}</span>
+        <p className="ml-1 font-medium text-sm md:text-center md:text-lg break-words">{staff.staffHomesite}</p>
+        <p className="ml-1 font-medium text-sm md:text-center md:text-lg break-words">{staff.staffEmail}</p>
+      </div>
+    </div>
+  )
+}
+
 // TODO:
 // Add download link for SAP (onClick event)
-// Add dosen info (onClick event)
+// Add staff info (onClick event)
 // Add managable view for SAP list
 
 export default App;
